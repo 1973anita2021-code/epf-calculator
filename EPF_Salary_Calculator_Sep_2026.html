@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EPF Salary Calculator - September 2026</title>
+<style>
+  :root { color-scheme: light; --blue:#1456a0; --bg:#f3f6fb; --ink:#172033; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Arial,"Noto Sans Devanagari",sans-serif; background:var(--bg); color:var(--ink); padding:18px; }
+  main { max-width:620px; margin:0 auto; }
+  .card { background:#fff; border-radius:18px; padding:22px; box-shadow:0 6px 24px #10204012; margin-bottom:16px; }
+  h1 { font-size:26px; margin:0 0 8px; text-align:center; }
+  .sub { text-align:center; color:#657087; margin:0 0 20px; line-height:1.5; }
+  label { display:block; font-weight:700; margin:14px 0 8px; }
+  input,select,button { font:inherit; }
+  input { width:100%; padding:13px; border:1px solid #cbd3e1; border-radius:10px; font-size:20px; }
+  .radio { display:flex; gap:10px; align-items:center; padding:9px 0; }
+  .radio input { width:auto; }
+  .total { background:#eaf3ff; border-radius:14px; padding:18px; text-align:center; margin:18px 0; }
+  .total .caption { color:#53647b; font-size:14px; }
+  .total strong { display:block; color:var(--blue); font-size:36px; margin:8px 0; }
+  .line { display:flex; justify-content:space-between; gap:12px; align-items:center; padding:14px 0; border-bottom:1px solid #e6eaf0; }
+  .line:last-child { border-bottom:0; }
+  .line small { display:block; color:#657087; line-height:1.5; margin-top:5px; }
+  .amount { font-weight:700; font-size:20px; white-space:nowrap; }
+  button { width:100%; padding:13px; border:0; border-radius:10px; background:var(--blue); color:white; font-weight:700; cursor:pointer; margin-top:10px; }
+  button.secondary { background:#edf1f7; color:#1c2a40; }
+  .note { color:#657087; font-size:12px; line-height:1.6; }
+  @media print { body { background:white; } button { display:none; } .card { box-shadow:none; border:1px solid #ddd; } }
+</style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <h1>EPF Salary Calculator</h1>
+    <p class="sub">September 2026<br>1–16 सितंबर और 17–30 सितंबर की गणना</p>
+
+    <label for="salary">मासिक PF वाली सैलरी (₹)</label>
+    <input id="salary" type="number" min="0" step="1" value="25000" inputmode="decimal" placeholder="जैसे 25000">
+
+    <label>कर्मचारी EPF योगदान दर</label>
+    <div class="radio"><input type="radio" name="rate" id="r12" value="12" checked><label for="r12" style="margin:0;font-weight:400">12% — सामान्य दर</label></div>
+    <div class="radio"><input type="radio" name="rate" id="r10" value="10"><label for="r10" style="margin:0;font-weight:400">10% — जहाँ लागू हो</label></div>
+
+    <div class="total">
+      <div class="caption">अनुमानित कुल कर्मचारी EPF कटौती</div>
+      <strong id="total">₹0</strong>
+      <div class="caption">नियोक्ता का योगदान अलग है</div>
+    </div>
+
+    <h2 style="font-size:19px">गणना का विवरण</h2>
+    <div class="line">
+      <div><b>1–16 सितंबर 2026</b><small>सीमा ₹15,000 · 16 दिन<br>योगदान योग्य वेतन: <span id="wage1">₹0</span></small></div>
+      <div class="amount" id="pf1">₹0</div>
+    </div>
+    <div class="line">
+      <div><b>17–30 सितंबर 2026</b><small>सीमा ₹25,000 · 14 दिन<br>योगदान योग्य वेतन: <span id="wage2">₹0</span></small></div>
+      <div class="amount" id="pf2">₹0</div>
+    </div>
+    <div class="line"><b>कुल EPF कटौती</b><div class="amount" id="total2">₹0</div></div>
+
+    <button type="button" id="reset">रीसेट करें</button>
+    <button type="button" class="secondary" onclick="window.print()">प्रिंट / PDF सेव करें</button>
+  </section>
+  <section class="card">
+    <b>ज़रूरी नोट</b>
+    <p class="note">यह कैलकुलेटर उपयोगकर्ता द्वारा दिए गए नियम के आधार पर अनुमान निकालता है: 1–16 सितंबर के लिए ₹15,000 और 17–30 सितंबर के लिए ₹25,000 की वेतन सीमा, 30-दिन के आधार पर 16/14 दिन का अनुपात। यह मानकर चलता है कि दोनों अवधियों में वही मासिक PF-वेतन लागू है। यह आधिकारिक EPFO निर्देश की पुष्टि नहीं करता। वास्तविक EPF/EPS गणना, वेतन-सीमा, पात्रता और ECR निर्देशों के लिए अपने नियोक्ता/EPFO से पुष्टि करें।</p>
+  </section>
+</main>
+<script>
+const salary = document.getElementById('salary');
+const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+function calculate() {
+  const s = Math.max(0, Number(salary.value) || 0);
+  const rate = Number(document.querySelector('input[name="rate"]:checked').value);
+  const wage1 = Math.min(s, 15000) * 16 / 30;
+  const wage2 = Math.min(s, 25000) * 14 / 30;
+  const pf1 = Math.round(wage1 * rate / 100);
+  const pf2 = Math.round(wage2 * rate / 100);
+  document.getElementById('wage1').textContent = fmt(wage1);
+  document.getElementById('wage2').textContent = fmt(wage2);
+  document.getElementById('pf1').textContent = fmt(pf1);
+  document.getElementById('pf2').textContent = fmt(pf2);
+  document.getElementById('total').textContent = fmt(pf1 + pf2);
+  document.getElementById('total2').textContent = fmt(pf1 + pf2);
+}
+salary.addEventListener('input', calculate);
+document.querySelectorAll('input[name="rate"]').forEach(el => el.addEventListener('change', calculate));
+document.getElementById('reset').addEventListener('click', () => {
+  salary.value = '25000';
+  document.getElementById('r12').checked = true;
+  calculate();
+});
+calculate();
+</script>
+</body>
+</html>
